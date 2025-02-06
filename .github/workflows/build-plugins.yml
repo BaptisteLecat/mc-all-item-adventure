@@ -55,4 +55,4 @@ jobs:
 
       - name: List files in plugins
         run: |
-          ls -R plugins
+          ls -R plugin_jars
