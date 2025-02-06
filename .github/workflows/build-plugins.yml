@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-gradle-jar:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -36,6 +37,7 @@ jobs:
           path: plugins/*/build/libs/*.jar
 
   build-docker-image:
+    environment: prod
     needs:
       - build-gradle-jar
     runs-on: ubuntu-latest
@@ -53,6 +55,27 @@ jobs:
           name: plugins
           path: plugin_jars
 
-      - name: List files in plugins
+      - name: Move JAR files to the root of plugin_jars
         run: |
-          ls -R plugin_jars
+          mkdir -p plugin_jars_flat
+          find plugin_jars -name "*.jar" -exec mv {} plugin_jars_flat/ \;
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+
+      - name: Build Docker image with all plugins
+        run: |
+          docker build --build-arg PLUGINS_DIR=plugin_jars_flat -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1 .
+
+      - name: Push Docker image
+        run: docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1
+          
