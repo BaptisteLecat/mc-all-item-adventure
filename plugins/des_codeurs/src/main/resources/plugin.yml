@@ -1,0 +1,9 @@
+name: desCodeurs
+version: '1.0-SNAPSHOT'
+main: fr.dreamin.desCodeurs.Main
+api-version: '1.21'
+commands:
+  test:
+    description: "Faire des tests"
+  items:
+    description: "Afficher les items"
