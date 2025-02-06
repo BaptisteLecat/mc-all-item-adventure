@@ -1,0 +1,23 @@
+name: build-plugins
+
+on:
+  workflow_run:
+    workflows: [ "build-gradle-jar" ]
+    types:
+      - completed
+
+jobs:
+  build-docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download a single artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: plugins
+
+      - name: List files in plugins
+        run: |
+          ls -R plugins
