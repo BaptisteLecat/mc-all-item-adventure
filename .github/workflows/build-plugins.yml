@@ -74,7 +74,7 @@ jobs:
 
       - name: Build Docker image with all plugins
         run: |
-          docker build --build-arg PLUGINS_DIR=plugin_jars_flat -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1 .
+          docker build --build-arg PLUGINS_DIR=plugin_jars_flat -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1 -f docker/Dockerfile .
 
       - name: Push Docker image
         run: docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1
