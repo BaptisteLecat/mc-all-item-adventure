@@ -4,20 +4,20 @@ import fr.dreamin.api.colors.ComponentColor;
 import fr.dreamin.api.colors.StringColor;
 import fr.dreamin.api.gui.SplitGuiInterface;
 import fr.dreamin.api.items.ItemBuilder;
+import fr.dreamin.api.packUtils.ItemsPreset;
 import fr.dreamin.api.sound.SoundHandler;
 import fr.dreamin.desCodeurs.Main;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.jetbrains.annotations.NotNull;
 import xyz.xenondevs.invui.gui.Gui;
 import xyz.xenondevs.invui.gui.Markers;
 import xyz.xenondevs.invui.gui.PagedGui;
-import xyz.xenondevs.invui.item.AbstractItem;
-import xyz.xenondevs.invui.item.Click;
-import xyz.xenondevs.invui.item.Item;
-import xyz.xenondevs.invui.item.ItemProvider;
+import xyz.xenondevs.invui.item.*;
 import xyz.xenondevs.invui.window.AnvilWindow;
 import xyz.xenondevs.invui.window.Window;
 
@@ -46,15 +46,16 @@ public class TestGui extends SplitGuiInterface {
     return Gui.normal()
       .setStructure(3, 1, "X D #")
       .addIngredient('X', Item.simple(new xyz.xenondevs.invui.item.ItemBuilder(Material.RED_STAINED_GLASS_PANE).setName(this.title)))
-//      .addIngredient('D', )
       .build();
   }
 
   @Override
-  public Gui guiLower(Player player) {
+  public PagedGui<Item> guiLower(Player player) {
     player.sendMessage("gui:" + this.title);
 
-    player.sendMessage(String.valueOf(filterName(Main.getGame().getGuiManager().getFilterItems().getCurrent(player), player).size()));
+    List<Item> items = filterName(Main.getGame().getGuiManager().getFilterItems().getCurrent(player), player);
+
+    player.sendMessage(String.valueOf(items.size()));
 
     return PagedGui.items().setStructure(
         ". X X X X X X X .",
@@ -74,7 +75,35 @@ public class TestGui extends SplitGuiInterface {
 
         }
       })
-      .setContent(filterName(Main.getGame().getGuiManager().getFilterItems().getCurrent(player), player))
+      .addIngredient('P', new AbstractPagedGuiBoundItem() {
+
+        @Override
+        public ItemProvider getItemProvider(Player player1) {
+          if (getGui().hasPreviousPage()) return new ItemBuilder(ItemsPreset.arrowLeft.getItem()).setName("Previous").toGuiItem();
+          return new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setHideToolType(true).toGuiItem();
+        }
+
+        @Override
+        public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull Click event) {
+          if (getItemProvider(player).get().getType().equals(Material.ARROW)) new SoundHandler(Sound.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 1, 1).play(player, null);
+          getGui().goBack();
+        }
+      })
+      .addIngredient('N',new AbstractPagedGuiBoundItem(){
+
+        @Override
+        public ItemProvider getItemProvider(Player player1) {
+          if (getGui().hasNextPage()) return new ItemBuilder(ItemsPreset.arrowRight.getItem()).setName("Next").toGuiItem();
+          return new ItemBuilder(Material.RED_STAINED_GLASS_PANE).setHideToolType(true).toGuiItem();
+        }
+
+        @Override
+        public void handleClick(@NotNull ClickType clickType, @NotNull Player player, @NotNull Click event) {
+          if (getItemProvider(player).get().getType().equals(Material.ARROW)) new SoundHandler(Sound.ITEM_BOOK_PAGE_TURN, SoundCategory.MASTER, 1, 1).play(player, null);
+          getGui().goForward();
+        }
+      })
+      .setContent(items)
       .build();
   }
 
@@ -87,7 +116,7 @@ public class TestGui extends SplitGuiInterface {
       .setLowerGui(guiLower(player))
       .addRenameHandler(e -> {
         this.title = e;
-        guiLower(player).notifyWindows();
+        guiLower(player).setContent(filterName(Main.getGame().getGuiManager().getFilterItems().getCurrent(player), player));
       })
       .build();
 
