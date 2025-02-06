@@ -36,6 +36,8 @@ jobs:
           path: plugins/*/build/libs/*.jar
 
   build-docker-image:
+    needs:
+      - build-gradle-jar
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
