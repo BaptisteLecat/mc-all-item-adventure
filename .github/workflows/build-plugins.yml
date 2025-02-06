@@ -72,10 +72,25 @@ jobs:
       - name: Configure Docker
         run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
 
-      - name: Build Docker image with all plugins
-        run: |
-          docker build --build-arg PLUGINS_DIR=plugin_jars_flat -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1 -f docker/Dockerfile .
+      - name: Determine Image Tag
+        run: echo "IMAGE_TAG=0.0.${{ github.run_number }}" >> $GITHUB_ENV
 
-      - name: Push Docker image
-        run: docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:0.0.1
+      - name: Build Docker image with dynamic tag
+        run: |
+          docker build --build-arg PLUGINS_DIR=plugin_jars_flat \
+            -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG \
+            -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest \
+            -f docker/Dockerfile .
+
+      - name: Push Docker images
+        run: |
+          docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+          docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest
+
+      - name: Update VM Container with New Image
+        run: |
+          gcloud compute instances update-container mc-server \
+            --zone=${{ secrets.GCP_ZONE }} \
+            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+      
           
