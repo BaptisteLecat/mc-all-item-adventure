@@ -18,5 +18,11 @@ variable "zone" {
 variable "credentials_file" {
   description = "The path to the credentials file for the service account used to provision the resources."
   type        = string
-  default = "service.json"
+  default     = "service.json"
+}
+
+variable "artifact_registry_repository" {
+  description = "The name of the Artifact Registry repository to create."
+  type        = string
+  default     = "minecraft-server"
 }
