@@ -20,9 +20,8 @@ public class PlayerCloseInventoryListener implements Listener {
       Arrays.stream(event.getInventory().getContents()).filter(is -> is != null && !is.getType().equals(Material.AIR)).forEach(is -> {
         if (!Main.getCodex().containsMaterialFromPlayers(is.getType())) {
           Main.getCodex().addMaterialFromPlayer(event.getPlayer().getUniqueId(), is.getType());
-          is.setAmount(is.getAmount() - 1);
-
           Bukkit.broadcastMessage(Main.getCodex().getPrefix() + StringColor.GOLD.getColor() + event.getPlayer().getName() + StringColor.GRAY.getColor() + " a validé: " + StringColor.GREEN.getColor() + is.getI18NDisplayName());
+          is.setAmount(is.getAmount() - 1);
         }
       });
 

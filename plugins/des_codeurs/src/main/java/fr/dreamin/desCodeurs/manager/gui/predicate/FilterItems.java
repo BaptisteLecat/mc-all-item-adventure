@@ -20,8 +20,8 @@ public class FilterItems {
 
   public FilterItems() {
     // Initialisation des différents filtres
-    predicatesItems.put("Tout", _ -> Main.getCodex().getMaterials());
-    predicatesItems.put("Validé", _ -> {
+    predicatesItems.put("Tout", d -> Main.getCodex().getMaterials());
+    predicatesItems.put("Validé", d -> {
 
       List<Material> result = new ArrayList<>();
 
@@ -31,7 +31,7 @@ public class FilterItems {
 
       return result;
     });
-    predicatesItems.put("Non validé", _ -> {
+    predicatesItems.put("Non validé", d -> {
 
       List<Material> result = new ArrayList<>(Main.getCodex().getMaterials());
 
@@ -46,7 +46,7 @@ public class FilterItems {
 
   //function to get a list of material from player where integer equals index of predicatesItems , name of fonction getCurrent
   public List<Material> getCurrent(Player player) {
-    return predicatesItems.getOrDefault(getKey(player), _ -> new ArrayList<>()).apply(player);
+    return predicatesItems.getOrDefault(getKey(player), d -> new ArrayList<>()).apply(player);
   }
 
   // Passer au Predicate suivant pour un joueur
