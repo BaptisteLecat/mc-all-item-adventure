@@ -49,4 +49,3 @@ processResources {
     expand props
   }
 }
-setLibsDirName("../test-server/plugins")
