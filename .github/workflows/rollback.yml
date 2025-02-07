@@ -1,24 +1,17 @@
-name: Rollback Minecraft Server (Auto & Manual)
+name: Rollback Minecraft Server
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Docker image tag to rollback to (leave empty for auto)'
-        required: false
+        description: 'Docker image tag to rollback to (e.g., 0.0.10)'
+        required: true
         type: string
 
-  workflow_run:
-    workflows: ["Build and Deploy Minecraft Server"]
-    types:
-      - completed
-
 jobs:
-  determine-rollback-version:
+  rollback:
     environment: prod
     runs-on: ubuntu-latest
-    outputs:
-      rollback_version: ${{ steps.get_version.outputs.rollback_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -32,52 +25,33 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
 
-      - name: Determine Rollback Version
-        id: get_version
+      - name: Validate Image Exists
         run: |
-          if [[ -n "${{ github.event.inputs.version }}" ]]; then
-            echo "Using user-specified version: ${{ github.event.inputs.version }}"
-            echo "rollback_version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-            exit 0
-          fi
+          IMAGE_TAG="${{ github.event.inputs.version }}"
+          IMAGE_PATH="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
 
-          echo "Fetching latest successful image..."
-          LATEST_TAG=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure \
-            --format="value(tags)" --sort-by="~update_time" | grep -Eo '0.0.[0-9]+' | head -n 2 | tail -n 1)
-
-          if [[ -z "$LATEST_TAG" ]]; then
-            echo "No previous version found. Aborting rollback!"
+          if gcloud artifacts docker images list $IMAGE_PATH --include-tags --format="value(tags)"; then
+            echo "✅ Image $IMAGE_PATH exists. Proceeding with rollback."
+          else
+            echo "❌ Error: Specified image tag does not exist!" >&2
             exit 1
           fi
 
-          echo "Rolling back to version: $LATEST_TAG"
-          echo "rollback_version=$LATEST_TAG" >> $GITHUB_ENV
-
-  rollback:
-    needs: determine-rollback-version
-    environment: prod
-    runs-on: ubuntu-latest
-    steps:
-      - id: "auth"
-        uses: "google-github-actions/auth@v2"
-        with:
-          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
-
       - name: Rollback to Selected Version
         run: |
+          IMAGE_TAG="${{ github.event.inputs.version }}"
           gcloud compute instances update-container mc-server \
             --zone=${{ secrets.GCP_ZONE }} \
-            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$rollback_version
+            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
-      - name: Verify Rollback Success
+      - name: Confirm Rollback
         run: |
-          sleep 10
-          STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="value(status)")
-          
-          if [[ "$STATUS" == "RUNNING" ]]; then
-            echo "Rollback successful! Server is running with version: $rollback_version"
+          echo "Fetching deployed container image..."
+          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
+            --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
+          if [ "$DEPLOYED_IMAGE" == "europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG" ]; then
+            echo "✅ Rollback successful!"
           else
-            echo "Rollback failed! Please check logs." >&2
+            echo "❌ Error: Rollback failed!" >&2
             exit 1
           fi
