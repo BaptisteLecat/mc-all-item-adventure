@@ -1,6 +1,7 @@
 package fr.dreamin.desCodeurs.component.player.hud;
 
 import fr.dreamin.api.colors.StringColor;
+import fr.dreamin.api.math.MathUtils;
 import fr.dreamin.api.msg.GradientText;
 import fr.dreamin.desCodeurs.Main;
 import fr.dreamin.desCodeurs.component.player.DPlayer;
@@ -29,12 +30,16 @@ public class PScoreBoard {
   public void updateAll() {
     List<String> sb = new ArrayList<>(List.of("§7"));
 
-    sb.add(Main.getCodex().getTotalIntFromMaterialsPlayers() + "/" + Main.getCodex().getMaterials().size());
+    sb.add(StringColor.GRAY.colored("----------------------"));
+
+    sb.add(StringColor.GOLD.colored("Global") + StringColor.GRAY.colored(": ") + StringColor.GREEN.colored(Main.getCodex().getTotalIntFromMaterialsPlayers()) + StringColor.GRAY.colored("/") + StringColor.GREEN.colored(Main.getCodex().getMaterials().size()) + StringColor.GRAY.colored(" | ") + StringColor.GREEN.colored(String.format("%.2f",MathUtils.calculatePercentage(Main.getCodex().getTotalIntFromMaterialsPlayers(), Main.getCodex().getMaterials().size())) + "%" ));
+
 
     if (!Main.getCodex().getMaterialsPlayers().isEmpty()) {
+      sb.add(StringColor.GRAY.colored("----------------------"));
       sb.add(" ");
       Main.getCodex().getMaterialsPlayers().forEach((uuid, materials) -> {
-        sb.add(Bukkit.getOfflinePlayer(uuid).getName() + ": " + materials.size() + " | " + Main.getCodex().getPercentageValidatedByPlayer(uuid) + "%");
+        sb.add(StringColor.GRAY.colored("- ") + StringColor.GOLD.colored(Bukkit.getOfflinePlayer(uuid).getName()) + StringColor.GRAY.colored(": ") + StringColor.GREEN.colored(materials.size()) + StringColor.GRAY.colored(" | ") + StringColor.GREEN.colored(Main.getCodex().getPercentageValidatedByPlayer(uuid) + "%"));
       });
     }
 
