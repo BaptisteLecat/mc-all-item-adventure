@@ -98,5 +98,30 @@ jobs:
           gcloud compute instances update-container mc-server \
             --zone=${{ secrets.GCP_ZONE }} \
             --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
-      
+
+      - name: Wait for container to restart
+        run: |
+          echo "Waiting for container restart..."
+          for i in {1..10}; do
+            STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="get(status)")
+            if [[ "$STATUS" == "RUNNING" ]]; then
+              echo "Instance is running, checking container logs..."
+              break
+            fi
+            sleep 10
+          done
+
+      - name: Fetch container status
+        run: |
+          CONTAINER_STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="yaml(metadata.gce-container-declaration)")
+          echo "Current container status:"
+          echo "$CONTAINER_STATUS"
+
+      - name: Fetch recent logs from the container
+        run: |
+          echo "Fetching recent logs from the container..."
+          gcloud logging read "resource.type=gce_instance AND resource.labels.instance_id=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format='value(id)')" \
+            --limit 20 \
+            --format="table(timestamp, textPayload)"
+
           
