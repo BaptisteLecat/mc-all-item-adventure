@@ -46,7 +46,7 @@ EOT
 spec:
   containers:
   - name: mc-container
-    image: europe-west1-docker.pkg.dev/weatherapp-journey/mc-all-item-adventure/mc-all-item-adventure:0.0.1
+    image: europe-west1-docker.pkg.dev/weatherapp-journey/mc-all-item-adventure/mc-all-item-adventure:latest
     env:
     - name: EULA
       value: 'TRUE'
