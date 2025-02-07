@@ -1,17 +1,24 @@
-name: Rollback Minecraft Server
+name: Rollback Minecraft Server (Auto & Manual)
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Docker image tag to rollback to (e.g., 0.0.10)'
-        required: true
+        description: 'Docker image tag to rollback to (leave empty for auto)'
+        required: false
         type: string
 
+  workflow_run:
+    workflows: ["Build and Deploy Minecraft Server"]
+    types:
+      - completed
+
 jobs:
-  rollback:
+  determine-rollback-version:
     environment: prod
     runs-on: ubuntu-latest
+    outputs:
+      rollback_version: ${{ steps.get_version.outputs.rollback_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -25,25 +32,52 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
 
-      - name: Validate Image Exists
+      - name: Determine Rollback Version
+        id: get_version
         run: |
-          IMAGE_TAG="${{ github.event.inputs.version }}"
-          IMAGE_PATH="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            echo "Using user-specified version: ${{ github.event.inputs.version }}"
+            echo "rollback_version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+            exit 0
+          fi
 
-          if gcloud artifacts docker images list $IMAGE_PATH --include-tags --format="value(tags)"; then
-            echo "Image $IMAGE_PATH exists. Proceeding with rollback."
-          else
-            echo "Error: Specified image tag does not exist!" >&2
+          echo "Fetching latest successful image..."
+          LATEST_TAG=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure \
+            --format="value(tags)" --sort-by="~update_time" | grep -Eo '0.0.[0-9]+' | head -n 2 | tail -n 1)
+
+          if [[ -z "$LATEST_TAG" ]]; then
+            echo "No previous version found. Aborting rollback!"
             exit 1
           fi
 
+          echo "Rolling back to version: $LATEST_TAG"
+          echo "rollback_version=$LATEST_TAG" >> $GITHUB_ENV
+
+  rollback:
+    needs: determine-rollback-version
+    environment: prod
+    runs-on: ubuntu-latest
+    steps:
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
       - name: Rollback to Selected Version
         run: |
-          IMAGE_TAG="${{ github.event.inputs.version }}"
           gcloud compute instances update-container mc-server \
             --zone=${{ secrets.GCP_ZONE }} \
-            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$rollback_version
 
-      - name: Confirm Rollback
+      - name: Verify Rollback Success
         run: |
-          echo "Minecraft server successfully rolled back to version: ${{ github.event.inputs.version }}"
+          sleep 10
+          STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="value(status)")
+          
+          if [[ "$STATUS" == "RUNNING" ]]; then
+            echo "Rollback successful! Server is running with version: $rollback_version"
+          else
+            echo "Rollback failed! Please check logs." >&2
+            exit 1
+          fi

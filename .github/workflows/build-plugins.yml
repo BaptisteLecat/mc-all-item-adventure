@@ -99,29 +99,34 @@ jobs:
             --zone=${{ secrets.GCP_ZONE }} \
             --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
-      - name: Wait for container to restart
+      - name: Fetch deployed container image
         run: |
-          echo "Waiting for container restart..."
+          echo "Fetching deployed container image..."
+          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
+            --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
+          echo "Deployed Image: $DEPLOYED_IMAGE"
+
+      - name: Check if container is running
+        run: |
+          echo "Checking if the container is running on VM..."
+          gcloud compute ssh mc-server --zone=${{ secrets.GCP_ZONE }} --command="docker ps --format '{{.Image}}'"
+
+      - name: Health Check - Minecraft Server
+        run: |
+          SERVER_IP=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="get(networkInterfaces[0].accessConfigs[0].natIP)")
+          echo "Checking Minecraft server at $SERVER_IP:25565..."
+
           for i in {1..10}; do
-            STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="get(status)")
-            if [[ "$STATUS" == "RUNNING" ]]; then
-              echo "Instance is running, checking container logs..."
-              break
+            if nc -zv $SERVER_IP 25565; then
+              echo "✅ Minecraft server is UP!"
+              exit 0
             fi
+            echo "❌ Server not responding yet, retrying in 10s..."
             sleep 10
           done
 
-      - name: Fetch container status
-        run: |
-          CONTAINER_STATUS=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="yaml(metadata.gce-container-declaration)")
-          echo "Current container status:"
-          echo "$CONTAINER_STATUS"
-
-      - name: Fetch recent logs from the container
-        run: |
-          echo "Fetching recent logs from the container..."
-          gcloud logging read "resource.type=gce_instance AND resource.labels.instance_id=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format='value(id)')" \
-            --limit 20 \
-            --format="table(timestamp, textPayload)"
+          echo "❌ Minecraft server did not start in time."
+          exit 1
+      
 
           
