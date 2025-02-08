@@ -28,12 +28,17 @@ jobs:
       - name: Validate Image Exists
         run: |
           IMAGE_TAG="${{ github.event.inputs.version }}"
-          IMAGE_PATH="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
+          echo "🔍 Checking if image tag $IMAGE_TAG exists in Artifact Registry..."
 
-          if gcloud artifacts docker images list $IMAGE_PATH --include-tags --format="value(tags)"; then
-            echo "✅ Image $IMAGE_PATH exists. Proceeding with rollback."
+          # Récupère tous les tags d'images
+          AVAILABLE_TAGS=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure \
+            --include-tags --format="value(tags)")
+
+          # Vérifie si l'image demandée est dans la liste
+          if echo "$AVAILABLE_TAGS" | grep -wq "$IMAGE_TAG"; then
+            echo "✅ Image $IMAGE_TAG exists. Proceeding with rollback."
           else
-            echo "❌ Error: Specified image tag does not exist!" >&2
+            echo "❌ Error: Specified image tag '$IMAGE_TAG' does not exist!" >&2
             exit 1
           fi
 
@@ -46,12 +51,16 @@ jobs:
 
       - name: Confirm Rollback
         run: |
+          IMAGE_TAG="${{ github.event.inputs.version }}"
           echo "Fetching deployed container image..."
           DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
             --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
-          if [ "$DEPLOYED_IMAGE" == "europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG" ]; then
-            echo "✅ Rollback successful!"
+          
+          EXPECTED_IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
+
+          if [ "$DEPLOYED_IMAGE" == "$EXPECTED_IMAGE" ]; then
+            echo "✅ Rollback successful! Server is now running version $IMAGE_TAG."
           else
-            echo "❌ Error: Rollback failed!" >&2
+            echo "❌ Error: Rollback failed! Expected image $EXPECTED_IMAGE but got $DEPLOYED_IMAGE" >&2
             exit 1
           fi
