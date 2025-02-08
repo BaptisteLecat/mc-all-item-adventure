@@ -93,14 +93,6 @@ jobs:
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
           docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest
 
-      - name: Cleanup Old Docker Images on VM
-        run: |
-          gcloud compute ssh mc-server --zone=${{ secrets.GCP_ZONE }} --command "
-            echo '🔥 Cleaning up old Docker images on VM...'
-            docker images --format '{{.ID}} {{.Repository}}' | grep -v 'konlet' | awk '{print \$1}' | xargs -r docker rmi -f || true
-            echo '✅ Cleanup completed!'
-          "
-
       - name: Update VM Container with New Image
         run: |
           gcloud compute instances update-container mc-server \
@@ -113,6 +105,14 @@ jobs:
           DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
             --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
           echo "Deployed Image: $DEPLOYED_IMAGE"
+
+      - name: Cleanup Old Docker Images on VM
+        run: |
+          gcloud compute ssh mc-server --zone=${{ secrets.GCP_ZONE }} --command "
+            echo '🔥 Cleaning up old Docker images on VM...'
+            docker images --format '{{.ID}} {{.Repository}}' | grep -v 'konlet' | awk '{print \$1}' | xargs -r docker rmi -f || true
+            echo '✅ Cleanup completed!'
+          "
 
       - name: Health Check - Minecraft Server
         run: |
