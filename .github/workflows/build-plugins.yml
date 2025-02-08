@@ -98,6 +98,8 @@ jobs:
     needs:
       - build-push-docker-image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ steps.build-push-docker-image.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -157,6 +159,9 @@ jobs:
       - build-push-docker-image
       - deploy-to-vm
     runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: ${{ steps.build-push-docker-image.outputs.IMAGE_TAG }}
+      SERVER_STATUS: ${{ needs.deploy-to-vm.outputs.SERVER_STATUS }}
     if: always()
     steps:
       - name: Generate Deployment Report (Summary)

@@ -131,6 +131,8 @@ jobs:
     needs:
       - rollback
     runs-on: ubuntu-latest
+    env:
+      ROLLBACK_STATUS: ${{ job.status }}
     if: always()
     steps:
       - name: Generate Rollback Report (Summary)
