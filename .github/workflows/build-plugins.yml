@@ -145,8 +145,15 @@ jobs:
           echo "  <li><strong>Branch:</strong> ${{ github.ref_name }}</li>" >> deployment_report.html
           echo "</ul>" >> deployment_report.html
 
+          # Déterminer la couleur en fonction du statut
+          if [[ "$SERVER_STATUS" == "✅ Minecraft server is UP!" ]]; then
+            COLOR="green"
+          else
+            COLOR="red"
+          fi
+
           echo "<h3>🛠️ Deployment Status</h3>" >> deployment_report.html
-          echo "<p style='color: ${( [ "$SERVER_STATUS" == "✅ Minecraft server is UP!" ] && echo "green" || echo "red" )};'><strong>$SERVER_STATUS</strong></p>" >> deployment_report.html
+          echo "<p style='color: $COLOR;'><strong>$SERVER_STATUS</strong></p>" >> deployment_report.html
 
           echo "<h3>📜 Logs & Details</h3>" >> deployment_report.html
           echo "<details><summary><strong>Show Deployment Logs</strong></summary>" >> deployment_report.html
