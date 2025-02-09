@@ -45,7 +45,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: '1.5.0'  # adaptez la version si nécessaire
+          terraform_version: '1.10.5'
 
       # 4. Vérification du format (optionnel mais recommandé)
       - name: Terraform Format Check
