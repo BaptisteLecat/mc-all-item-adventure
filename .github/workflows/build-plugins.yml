@@ -1,4 +1,4 @@
-name: build-plugins
+name: Build & Deploy Minecraft Server with Plugins
 
 on:
   push:
