@@ -60,28 +60,20 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: ./infrastructure
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
       # 6. Validation de la configuration
       - name: Terraform Validate
         run: terraform validate
         working-directory: ./infrastructure
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
       # 7. Exécution du plan et sauvegarde dans un fichier (étape très utile en PR)
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -out=tfplan
         working-directory: ./infrastructure
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
       # 8. Appliquer automatiquement sur la branche main (optionnel, selon vos exigences)
       - name: Terraform Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
         working-directory: ./infrastructure
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
