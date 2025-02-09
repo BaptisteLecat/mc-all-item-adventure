@@ -171,7 +171,6 @@ resource "google_service_account_key" "ci_service_account_key" {
   public_key_type    = "TYPE_X509_PEM_FILE"
 }
 
-# Create a GitHub Actions secret with the service account key
 resource "github_actions_secret" "ci_service_account_json" {
   repository      = var.github_repository # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
   secret_name     = "SERVICE_ACCOUNT_KEY"
