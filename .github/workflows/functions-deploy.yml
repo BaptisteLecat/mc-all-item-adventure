@@ -32,6 +32,11 @@ jobs:
       - name: Install dependencies
         run: cd infrastructure/cloud_functions/functions && npm install
 
+      - name: Create .env file for Firebase parameters
+        run: |
+          echo "FN_MAX_INSTANCES=${{ env.FN_MAX_INSTANCES }}" >> infrastructure/cloud_functions/functions/.env
+          echo "FN_REGION=${{ env.FN_REGION }}" >> infrastructure/cloud_functions/functions/.env
+
       - id: "auth"
         uses: "google-github-actions/auth@v2"
         with:
