@@ -5,14 +5,13 @@ on:
     branches:
       - main
     paths:
-      - "infrastructure/**"          # surveille tous les changements dans infrastructure
-    paths-ignore:
-      - "infrastructure/cloud_functions/**"  # ignore les changements dans cloud_functions
+      - "infrastructure/**"
+      - "!infrastructure/cloud_functions/**"
   pull_request:
     paths:
       - "infrastructure/**"
-    paths-ignore:
-      - "infrastructure/cloud_functions/**"
+      - "!infrastructure/cloud_functions/**"
+
 
 
 jobs:
