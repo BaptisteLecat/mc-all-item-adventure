@@ -12,7 +12,7 @@ jobs:
       GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SERVICE_ACCOUNT_KEY }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       VM_GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-      VM_GCP_ZONE: ${{ env.GCP_ZONE }}
+      VM_GCP_ZONE: ${{ secrets.GCP_ZONE }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
