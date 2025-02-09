@@ -102,7 +102,7 @@ jobs:
       - build-push-docker-image
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ jobs.build-push-docker-image.outputs.IMAGE_TAG }}
+      IMAGE_TAG: ${{ job.build-push-docker-image.outputs.IMAGE_TAG }}
     outputs:
         SERVER_STATUS: ${{ steps.health-check.outputs.SERVER_STATUS }}
     steps:
@@ -166,8 +166,8 @@ jobs:
       - deploy-to-vm
     runs-on: ubuntu-latest
     env:
-      IMAGE_TAG: ${{ jobs.build-push-docker-image.outputs.IMAGE_TAG }}
-      SERVER_STATUS: ${{ jobs.deploy-to-vm.outputs.SERVER_STATUS }}
+      IMAGE_TAG: ${{ job.build-push-docker-image.outputs.IMAGE_TAG }}
+      SERVER_STATUS: ${{ job.deploy-to-vm.outputs.SERVER_STATUS }}
     if: always()
     steps:
       - name: Generate Deployment Report (Summary)
