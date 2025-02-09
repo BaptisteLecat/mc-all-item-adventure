@@ -81,14 +81,14 @@ jobs:
         run: |
           IMAGE_TAG="${{ github.event.inputs.version }}"
           gcloud compute instances update-container mc-server \
-            --zone=${{ secrets.GCP_ZONE }} \
+            --zone=${{ vars.GCP_ZONE }} \
             --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
       - name: Confirm Rollback
         run: |
           IMAGE_TAG="${{ github.event.inputs.version }}"
           echo "Fetching deployed container image..."
-          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
+          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} \
             --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
           
           EXPECTED_IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
@@ -102,7 +102,7 @@ jobs:
 
       - name: Cleanup Old Docker Images on VM
         run: |
-          gcloud compute ssh mc-server --zone=${{ secrets.GCP_ZONE }} --command "
+          gcloud compute ssh mc-server --zone=${{ vars.GCP_ZONE }} --command "
             echo '🔥 Cleaning up old Docker images on VM...'
             docker images --format '{{.ID}} {{.Repository}}' | grep -v 'konlet' | awk '{print \$1}' | xargs -r docker rmi -f || true
             echo '✅ Cleanup completed!'
@@ -110,7 +110,7 @@ jobs:
 
       - name: Health Check - Minecraft Server
         run: |
-          SERVER_IP=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="get(networkInterfaces[0].accessConfigs[0].natIP)")
+          SERVER_IP=$(gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} --format="get(networkInterfaces[0].accessConfigs[0].natIP)")
           echo "Checking Minecraft server at $SERVER_IP:25565..."
           SERVER_STATUS="❌ Minecraft server did NOT start!"
 

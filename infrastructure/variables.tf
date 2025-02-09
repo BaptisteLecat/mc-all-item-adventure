@@ -26,3 +26,21 @@ variable "artifact_registry_repository" {
   type        = string
   default     = "minecraft-server"
 }
+
+variable "machine_type" {
+  description = "The machine type to use for the server."
+  type        = string
+  default     = "e2-medium"
+}
+
+variable "disk_size" {
+  description = "The size of the disk to attach to the server."
+  type        = number
+  default     = 10
+}
+
+variable "service_account" {
+  description = "The service account to use for provisioning resources."
+  type        = string
+  default     = "ci-service-account"
+}

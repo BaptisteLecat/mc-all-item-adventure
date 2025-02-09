@@ -1,0 +1,84 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "infrastructure/**"          # surveille tous les changements dans infrastructure
+    paths-ignore:
+      - "infrastructure/cloud_functions/**"  # ignore les changements dans cloud_functions
+  pull_request:
+    paths:
+      - "infrastructure/**"
+    paths-ignore:
+      - "infrastructure/cloud_functions/**"
+
+
+jobs:
+  terraform:
+    name: "Terraform Workflow"
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      TF_VAR_project: "${{ secrets.GCP_PROJECT }}"
+      TF_VAR_region: "${{ vars.GCP_REGION }}"
+      TF_VAR_zone: "${{ vars.GCP_ZONE }}"
+      TF_VAR_artifact_registry_repository: ${{ vars.TF_GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+      TF_VAR_machine_type: ${{ vars.TF_GCP_MACHINE_TYPE }}
+      TF_VAR_disk_size: ${{ vars.TF_GCP_DISK_SIZE }}
+      TF_VAR_service_account: ${{ vars.TF_GCP_GH_SERVICE_ACCOUNT_NAME }}
+      TF_VAR_github_token: ${{ secrets.TF_GITHUB_TOKEN }}
+      TF_VAR_github_repository: ${{ github.repository }}
+      TF_VAR_github_owner: ${{ github.repository_owner }}
+    steps:
+      # 1. Récupérer le dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Créer le fichier de credentials GCP à partir du secret
+      - name: Set up GCP Credentials
+        run: |
+          echo "${{ secrets.TERRAFORM_SERVICE_ACCOUNT_KEY }}" > ${{ github.workspace }}/gcp-key.json
+        shell: bash
+
+      # 3. Installer Terraform via l’action officielle
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.5.0'  # adaptez la version si nécessaire
+
+      # 4. Vérification du format (optionnel mais recommandé)
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        working-directory: ./infrastructure
+
+      # 5. Initialisation de Terraform
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
+
+      # 6. Validation de la configuration
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ./infrastructure
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
+
+      # 7. Exécution du plan et sauvegarde dans un fichier (étape très utile en PR)
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        working-directory: ./infrastructure
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
+
+      # 8. Appliquer automatiquement sur la branche main (optionnel, selon vos exigences)
+      - name: Terraform Apply
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./infrastructure
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json

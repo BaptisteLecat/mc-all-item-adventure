@@ -126,19 +126,19 @@ jobs:
       - name: Update VM Container with New Image
         run: |
           gcloud compute instances update-container mc-server \
-            --zone=${{ secrets.GCP_ZONE }} \
+            --zone=${{ vars.GCP_ZONE }} \
             --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
       - name: Fetch deployed container image
         run: |
           echo "Fetching deployed container image..."
-          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} \
+          DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} \
             --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
           echo "✅ Deployed Image: $DEPLOYED_IMAGE"
 
       - name: Cleanup Old Docker Images on VM
         run: |
-          gcloud compute ssh mc-server --zone=${{ secrets.GCP_ZONE }} --command "
+          gcloud compute ssh mc-server --zone=${{ vars.GCP_ZONE }} --command "
             echo '🔥 Cleaning up old Docker images on VM...'
             docker images --format '{{.ID}} {{.Repository}}' | grep -v 'konlet' | awk '{print \$1}' | xargs -r docker rmi -f || true
             echo '✅ Cleanup completed!'
@@ -147,7 +147,7 @@ jobs:
       - name: Health Check - Minecraft Server
         id: health-check
         run: |
-          SERVER_IP=$(gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="get(networkInterfaces[0].accessConfigs[0].natIP)")
+          SERVER_IP=$(gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} --format="get(networkInterfaces[0].accessConfigs[0].natIP)")
           echo "Checking Minecraft server at $SERVER_IP:25565..."
           SERVER_STATUS="❌ Minecraft server did NOT start!"
 
@@ -205,7 +205,7 @@ jobs:
           echo "<details><summary><strong>Show Deployment Logs</strong></summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```yaml' >> $GITHUB_STEP_SUMMARY
-          gcloud compute instances describe mc-server --zone=${{ secrets.GCP_ZONE }} --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' >> $GITHUB_STEP_SUMMARY
+          gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY

@@ -12,7 +12,7 @@ jobs:
       GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SERVICE_ACCOUNT_KEY }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       VM_GCP_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-      VM_GCP_ZONE: ${{ secrets.GCP_ZONE }}
+      VM_GCP_ZONE: ${{ vars.GCP_ZONE }}
       FN_MAX_INSTANCES: ${{ vars.FN_MAX_INSTANCES }}
       FN_REGION: ${{ vars.FN_REGION }}
       VM_INSTANCE_NAME: ${{ vars.VM_INSTANCE_NAME }}
