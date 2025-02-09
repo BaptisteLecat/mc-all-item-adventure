@@ -69,7 +69,7 @@ EOT
     scopes = ["cloud-platform"]
   }
 
-/*  attached_disk {
+  /*  attached_disk {
     device_name = "persistent-disk-1"
     mode        = "READ_WRITE"
     source      = google_compute_disk.mc_data_disk.self_link
@@ -173,7 +173,7 @@ resource "google_service_account_key" "ci_service_account_key" {
 
 # Create a GitHub Actions secret with the service account key
 resource "github_actions_secret" "ci_service_account_json" {
-  repository      = var.github_repository    # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
+  repository      = var.github_repository # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
   secret_name     = "SERVICE_ACCOUNT_KEY"
   plaintext_value = base64decode(google_service_account_key.ci_service_account_key.private_key)
 }
@@ -181,8 +181,8 @@ resource "github_actions_secret" "ci_service_account_json" {
 
 # Enable the Cloud Billing API
 resource "google_project_service" "cloud_billing" {
-  project = var.project
-  service = "cloudbilling.googleapis.com"
+  project            = var.project
+  service            = "cloudbilling.googleapis.com"
   disable_on_destroy = false
 }
 
