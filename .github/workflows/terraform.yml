@@ -38,8 +38,9 @@ jobs:
       # 2. Créer le fichier de credentials GCP à partir du secret
       - name: Set up GCP Credentials
         run: |
-          echo "${{ secrets.TERRAFORM_SERVICE_ACCOUNT_KEY }}" > ${{ github.workspace }}/gcp-key.json
+          printf '%s' "${{ secrets.TERRAFORM_SERVICE_ACCOUNT_KEY }}" > ${{ github.workspace }}/gcp-key.json
         shell: bash
+
 
       # 3. Installer Terraform via l’action officielle
       - name: Setup Terraform
