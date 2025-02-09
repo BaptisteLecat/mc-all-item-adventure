@@ -1,0 +1,38 @@
+name: Deploy Cloud Functions
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-functions:
+    environment: prod
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      VM_GCP_PROJECT: ${{ env.GCP_PROJECT_ID }}
+      VM_GCP_ZONE: ${{ env.GCP_ZONE }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: cd infrastructure/cloud_functions/functions && npm install
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.SERVICE_ACCOUNT_KEY }}"
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: Deploy Cloud Functions
+        run: cd infrastructure/cloud_functions/functions && npm run deploy
