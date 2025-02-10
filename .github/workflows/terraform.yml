@@ -12,8 +12,6 @@ on:
       - "infrastructure/**"
       - "!infrastructure/cloud_functions/**"
 
-
-
 jobs:
   terraform:
     name: "Terraform Workflow"
@@ -37,6 +35,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2. Authentification auprès de GCP
       - id: "auth"
         uses: "google-github-actions/auth@v2"
         with:
@@ -46,34 +45,41 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
 
-      # 3. Installer Terraform via l’action officielle
+      # 3. Installer Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: '1.10.5'
 
-      # 4. Vérification du format (optionnel mais recommandé)
+      # 4. Vérifier le format Terraform
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
         working-directory: ./infrastructure
 
-      # 5. Initialisation de Terraform
-      - name: Terraform Init
-        run: terraform init
+      # 5. Générer le fichier backend.tfvars dans le répertoire d'infrastructure
+      - name: Generate backend config file
+        run: |
+          echo "bucket = \"${TF_VAR_terraform_bucket_name}\"" > backend.tfvars
+          echo "prefix = \"terraform/state\"" >> backend.tfvars
         working-directory: ./infrastructure
 
-      # 6. Validation de la configuration
+      # 6. Initialiser Terraform en utilisant le fichier backend.tfvars
+      - name: Terraform Init
+        run: terraform init -backend-config=backend.tfvars
+        working-directory: ./infrastructure
+
+      # 7. Valider la configuration Terraform
       - name: Terraform Validate
         run: terraform validate
         working-directory: ./infrastructure
 
-      # 7. Exécution du plan et sauvegarde dans un fichier (étape très utile en PR)
+      # 8. Exécuter le plan et sauvegarder dans un fichier
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -out=tfplan
         working-directory: ./infrastructure
 
-      # 8. Appliquer automatiquement sur la branche main (optionnel, selon vos exigences)
+      # 9. Appliquer automatiquement sur la branche main
       - name: Terraform Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
