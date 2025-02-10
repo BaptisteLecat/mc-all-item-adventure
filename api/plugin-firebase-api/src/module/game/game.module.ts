@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import {GameController} from "./controllers/game.controller";
-import {GamesService} from "./services/generation.service";
+import {GamesService} from "./services/game.service";
 import {FirebaseProvider} from "../../providers/firebase.provider";
 import {GameConverter} from "./converters/game.converter";
 

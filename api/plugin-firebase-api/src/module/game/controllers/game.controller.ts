@@ -1,5 +1,5 @@
 import {Controller, Get, NotFoundException, Param, Post} from '@nestjs/common';
-import {GamesService} from "../services/generation.service";
+import {GamesService} from "../services/game.service";
 import {Game} from "../entities/game.entity";
 
 @Controller({
