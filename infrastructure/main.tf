@@ -69,11 +69,11 @@ EOT
     scopes = ["cloud-platform"]
   }
 
-  /*  attached_disk {
+    attached_disk {
     device_name = "persistent-disk-1"
     mode        = "READ_WRITE"
     source      = google_compute_disk.mc_data_disk.self_link
-  }*/
+  }
 
   scheduling {
     automatic_restart   = true
@@ -177,6 +177,40 @@ resource "github_actions_secret" "ci_service_account_json" {
   plaintext_value = base64decode(google_service_account_key.ci_service_account_key.private_key)
 }
 
+resource "google_service_account" "cloud_run_plugin_firebase_api_service_account" {
+  account_id   = var.service_account
+  display_name = "Cloud Run Plugin Firebase API Service Account"
+  description  = "Service account used by the Cloud Run Plugin Firebase API"
+}
+
+resource "google_project_iam_member" "artifact_registry_service_agent" {
+  project = var.project
+  role    = "roles/artifactregistry.serviceAgent"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
+}
+
+resource "google_project_iam_member" "cloud_run_admin" {
+  project = var.project
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
+}
+
+resource "google_project_iam_member" "service_account_user" {
+  project = var.project
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
+}
+
+resource "google_service_account_key" "cloud_run_plugin_firebase_api_service_account_key" {
+  service_account_id = google_service_account.cloud_run_plugin_firebase_api_service_account.id
+  public_key_type    = "TYPE_X509_PEM_FILE"
+}
+
+resource "github_actions_secret" "cloud_run_plugin_firebase_api_service_account_json" {
+  repository      = var.github_repository # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
+  secret_name     = "CLOUD_RUN_EXECUTOR_SERVICE_ACCOUNT"
+  plaintext_value = base64decode(google_service_account_key.cloud_run_plugin_firebase_api_service_account_key.private_key)
+}
 
 # Enable the Cloud Billing API
 resource "google_project_service" "cloud_billing" {
