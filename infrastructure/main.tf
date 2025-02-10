@@ -195,7 +195,7 @@ resource "google_project_iam_member" "cloud_run_admin" {
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
-resource "google_project_iam_member" "service_account_user" {
+resource "google_project_iam_member" "plugin_firebase_api_service_account_user" {
   project = var.project
   role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
