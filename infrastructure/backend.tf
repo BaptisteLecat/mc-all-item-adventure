@@ -1,6 +1,7 @@
 terraform {
-  gcs = {
-    bucket = var.terraform_bucket_name
+  backend "gcs" {
+    bucket  = var.terraform_bucket_name
+    prefix  = "terraform/state"
   }
   required_providers {
     google = {
