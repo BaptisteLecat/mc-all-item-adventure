@@ -4,8 +4,8 @@ variable "project" {
 }
 
 variable "terraform_bucket_name" {
-    description = "The name of the GCS bucket to use for storing Terraform state."
-    type        = string
+  description = "The name of the GCS bucket to use for storing Terraform state."
+  type        = string
 }
 
 variable "region" {
