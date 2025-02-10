@@ -2,3 +2,5 @@
 infrastructure/*.json
 serviceaccount.json
 *.tfvars
+
+/api/plugin-firebase-api/node_modules

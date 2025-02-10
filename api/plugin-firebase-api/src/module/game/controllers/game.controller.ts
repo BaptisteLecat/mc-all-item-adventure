@@ -1,4 +1,4 @@
-import {Controller, Get, NotFoundException, Param} from '@nestjs/common';
+import {Controller, Get, NotFoundException, Param, Post} from '@nestjs/common';
 import {GamesService} from "../services/generation.service";
 import {Game} from "../entities/game.entity";
 
@@ -17,4 +17,10 @@ export class GameController {
 
     return game;
   }
+
+  @Post()
+  async newGame() {
+
+  }
+
 }
