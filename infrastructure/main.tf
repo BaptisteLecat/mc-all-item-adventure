@@ -7,6 +7,7 @@ resource "google_compute_instance" "mc_server" {
   boot_disk {
     initialize_params {
       image = "cos-cloud/cos-stable"
+      type  = "pd-ssd"
       size  = 10
     }
   }
