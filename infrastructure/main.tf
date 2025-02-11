@@ -58,6 +58,7 @@ spec:
       value: |
         38efa6ca-1964-4c6d-8861-a3426a81f1a0
         8cb12628-0314-4854-b6eb-6ca8834a3fef
+        d9a81fa9-4994-47ff-bf99-00e832f7590a
     - name: MEMORY
       value: '4G'
     - name: INIT_MEMORY
