@@ -1,14 +1,9 @@
-import {IsNotEmpty, IsObject, IsString} from "class-validator";
+import {IsArray, IsNotEmpty, IsObject, IsString} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
 import {CreateChestCoordDto} from "./create.chestCoord.dto";
 import {CreateScoreDto} from "./create.score.dto";
 
 export class CreateGameDto {
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  id: string;
 
   @ApiProperty()
   @IsString()
@@ -21,7 +16,7 @@ export class CreateGameDto {
   chestCoord: CreateChestCoordDto
 
   @ApiProperty()
-  @IsObject()
+  @IsArray()
   @IsNotEmpty()
   scores: CreateScoreDto[]
 
