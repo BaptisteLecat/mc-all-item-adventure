@@ -208,6 +208,13 @@ resource "google_project_iam_member" "plugin_firebase_api_service_account_user" 
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
+#act as a service account
+resource "google_project_iam_member" "plugin_firebase_api_service_account_token_creator" {
+  project = var.project
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
+}
+
 resource "google_service_account_key" "cloud_run_plugin_firebase_api_service_account_key" {
   service_account_id = google_service_account.cloud_run_plugin_firebase_api_service_account.id
   public_key_type    = "TYPE_X509_PEM_FILE"
