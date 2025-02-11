@@ -61,9 +61,9 @@ spec:
     - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
       value: 'TRUE'
     - name: VIEW_DISTANCE
-        value: '20'
+      value: '20'
     - name: DIFFICULTY
-        value: 'hard'
+      value: 'hard'
     volumeMounts:
     - name: host-path-0
       readOnly: false
