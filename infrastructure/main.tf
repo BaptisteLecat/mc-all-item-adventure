@@ -196,6 +196,12 @@ resource "google_project_iam_member" "plugin_firebase_api_artifact_registry_writ
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
+resource "google_project_iam_member" "plugin_firebase_api_cloud_run_service_agent" {
+  project = var.project
+  role    = "roles/run.serviceAgent"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
+}
+
 resource "google_project_iam_member" "cloud_run_admin" {
   project = var.project
   role    = "roles/run.admin"
