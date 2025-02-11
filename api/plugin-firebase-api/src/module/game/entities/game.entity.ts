@@ -16,7 +16,7 @@ export class Game {
   }
 
   static fromFirestoreDocument(id: any, data: any): Game {
-    return new Game(id, data.gameKey, data.chestCoord, data.scores);
+    return new Game(id, data.gameKey, ChestCoord.fromJson(data.chestCoord), data.scores.map((score) => Score.fromJson(score)) as Score[]);
   }
 
   static fromJson(data: any): Game {

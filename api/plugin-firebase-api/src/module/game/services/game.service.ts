@@ -18,18 +18,23 @@ export class GamesService {
     return this.gameConverter.fromFirestoreDocumentSnapshot(game);
   }
 
-  async create(id: string, gameKey: string, chestCoord: ChestCoord, scores: Score[]): Promise<Game> {
-    const game = new Game(id, gameKey, chestCoord, scores);
-    await this.firestoreProvider.getFirestore().collection(GamesService.collection).doc(id).withConverter(this.gameConverter).set(game.toFirestoreDocument());
+  async create(game: Game): Promise<Game> {
+    const id = this.firestoreProvider.getFirestore().collection(GamesService.collection).doc().id;
+    game.id = id;
+    await this.firestoreProvider.getFirestore().collection(GamesService.collection).doc(id).withConverter(this.gameConverter).set(game);
 
     return game;
   }
 
-  async update(game: Game): Promise<Game> {
+  async addScore(gameId: string, score: Score): Promise<Score> {
+    const game = await this.findOne(gameId);
+    if(!game){
+      throw Error("La game indiquée n'existe pas")
+    }
+    game.scores.push(score);
 
-    await this.firestoreProvider.getFirestore().collection(GamesService.collection).doc(game.id).withConverter(this.gameConverter).set(game.toFirestoreDocument());
-
-    return game;
+    await this.firestoreProvider.getFirestore().collection(GamesService.collection).doc(gameId).withConverter(this.gameConverter).set(game);
+    return score;
   }
 
 }

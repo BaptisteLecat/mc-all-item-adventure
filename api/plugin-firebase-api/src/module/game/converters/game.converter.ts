@@ -1,6 +1,6 @@
 import { Game } from "../entities/game.entity";
 import { Injectable } from "@nestjs/common";
-import { FirestoreDataConverter, Firestore } from '@google-cloud/firestore';
+import { FirestoreDataConverter } from '@google-cloud/firestore';
 import * as firebase from 'firebase-admin';
 
 @Injectable()
