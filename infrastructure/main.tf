@@ -177,6 +177,12 @@ resource "github_actions_secret" "ci_service_account_json" {
   plaintext_value = base64decode(google_service_account_key.ci_service_account_key.private_key)
 }
 
+resource "google_artifact_registry_repository" "plugin_firebase_api_repository" {
+  location      = var.region
+  repository_id = "plugin-firebase-api"
+  format        = "DOCKER"
+}
+
 resource "google_service_account" "cloud_run_plugin_firebase_api_service_account" {
   account_id   = "cloud-run-plugin-firebase-api"
   display_name = "Cloud Run Plugin Firebase API Service Account"
