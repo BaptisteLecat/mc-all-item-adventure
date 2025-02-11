@@ -1,3 +1,3 @@
 # Plugins
 
-Dossier contenant le code source des plugins.
+Dossier contenant le code source des plugins
