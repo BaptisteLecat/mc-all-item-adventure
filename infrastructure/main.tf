@@ -190,21 +190,9 @@ resource "google_service_account" "cloud_run_plugin_firebase_api_service_account
   description  = "Service account used by the Cloud Run Plugin Firebase API"
 }
 
-resource "google_project_iam_member" "plugin_firebase_api_artifact_registry_writer" {
-  project = var.project
-  role    = "roles/artifactregistry.writer"
-  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
-}
-
 resource "google_project_iam_member" "plugin_firebase_api_cloud_run_service_agent" {
   project = var.project
   role    = "roles/run.serviceAgent"
-  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
-}
-
-resource "google_project_iam_member" "cloud_run_admin" {
-  project = var.project
-  role    = "roles/run.admin"
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
@@ -221,16 +209,17 @@ resource "google_project_iam_member" "plugin_firebase_api_service_account_token_
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
-resource "google_service_account_key" "cloud_run_plugin_firebase_api_service_account_key" {
-  service_account_id = google_service_account.cloud_run_plugin_firebase_api_service_account.id
-  public_key_type    = "TYPE_X509_PEM_FILE"
+resource "google_project_iam_member" "plugin_firebase_api_firebase_develop_admin" {
+  project = var.project
+  role    = "roles/firebase.developAdmin"
+  member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
 resource "github_actions_environment_secret" "cloud_run_plugin_firebase_api_service_account_json" {
   repository      = var.github_repository # ex: "mc-all-item-adventure"
   environment     = "prod"                # l'environnement ciblé
-  secret_name     = "CLOUD_RUN_EXECUTOR_SERVICE_ACCOUNT"
-  plaintext_value = base64decode(google_service_account_key.cloud_run_plugin_firebase_api_service_account_key.private_key)
+  secret_name     = "CLOUD_RUN_EXECUTOR_SERVICE_ACCOUNT_NAME"
+  plaintext_value = base64decode(google_service_account.cloud_run_plugin_firebase_api_service_account.email)
 }
 
 # Enable the Cloud Billing API
