@@ -64,10 +64,10 @@ spec:
 EOT
   }
 
-  /*  service_account {
+    service_account {
     email  = "384868196694-compute@developer.gserviceaccount.com"
     scopes = ["cloud-platform"]
-  }*/
+  }
 
   attached_disk {
     device_name = "persistent-disk-1"
