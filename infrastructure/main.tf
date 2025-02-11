@@ -69,11 +69,11 @@ EOT
     scopes = ["cloud-platform"]
   }
 
-  attached_disk {
+  /*  attached_disk {
     device_name = "persistent-disk-1"
     mode        = "READ_WRITE"
     source      = google_compute_disk.mc_data_disk.self_link
-  }
+  }*/
 
   scheduling {
     automatic_restart   = true
