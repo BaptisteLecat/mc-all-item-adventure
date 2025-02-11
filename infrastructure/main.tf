@@ -50,6 +50,20 @@ spec:
     env:
     - name: EULA
       value: 'TRUE'
+    - name: WHITELIST
+      value: |
+        38efa6ca-1964-4c6d-8861-a3426a81f1a0
+    - name: OPS
+      value: |
+        38efa6ca-1964-4c6d-8861-a3426a81f1a0
+    - name: ALLOW_NETHER
+      value: 'TRUE'
+    - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
+      value: 'TRUE'
+    - name: VIEW_DISTANCE
+        value: 20
+    - name: DIFFICULTY
+        value: 'hard'
     volumeMounts:
     - name: host-path-0
       readOnly: false
@@ -69,11 +83,11 @@ EOT
     scopes = ["cloud-platform"]
   }
 
-  /*  attached_disk {
+    attached_disk {
     device_name = "persistent-disk-1"
     mode        = "READ_WRITE"
     source      = google_compute_disk.mc_data_disk.self_link
-  }*/
+  }
 
   scheduling {
     automatic_restart   = true
