@@ -7,6 +7,7 @@ import fr.dreamin.api.items.ItemBuilder;
 import fr.dreamin.api.packUtils.ItemsPreset;
 import fr.dreamin.api.sound.SoundHandler;
 import fr.dreamin.desCodeurs.Main;
+import fr.dreamin.desCodeurs.manager.gui.GuiManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -46,13 +47,13 @@ public class ItemGui extends SingleGuiInterface {
       .addIngredient('F', new AbstractItem() {
         @Override
         public ItemProvider getItemProvider(Player player) {
-          return new xyz.xenondevs.invui.item.ItemBuilder(new ItemBuilder(Material.NAME_TAG).setCustomModelData(5).setName(StringColor.YELLOW.colored("Filtre: " + Main.getGame().getGuiManager().getFilterItems().getKey(player))).toItemStack());
+          return new xyz.xenondevs.invui.item.ItemBuilder(new ItemBuilder(Material.NAME_TAG).setCustomModelData(5).setName(StringColor.YELLOW.colored("Filtre: " + GuiManager.getFilterItems().getKey(player))).toItemStack());
         }
 
         @Override
         public void handleClick(ClickType clickType, Player player, Click click) {
           new SoundHandler("danganronpa:click_button", SoundCategory.MASTER, 1F, 1F).play(player, null);
-          Main.getGame().getGuiManager().getFilterItems().next(player);
+          GuiManager.getFilterItems().next(player);
           new ItemGui().open(player);
         }
       })
@@ -84,7 +85,7 @@ public class ItemGui extends SingleGuiInterface {
           getGui().goForward();
         }
       })
-      .setContent(getItems(Main.getGame().getGuiManager().getFilterItems().getCurrent(player)))
+      .setContent(getItems(GuiManager.getFilterItems().getCurrent(player)))
       .build();
   }
 

@@ -10,25 +10,36 @@
 ####################################################################################################
 
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#>>       DATABASE INFORMATION       >>
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-sql:
-  host: 54.37.125.211
-  port: 3306
-  dbName: desCodeurs
-  username: admin
-  password: "DXf5TgzhC1BEdyMKQvq6"
-  defaultPrefix: ""
-
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 #>>       PLUGIN CONFIGURATION       >>
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+apiUrl: "https://plugin-firebase-api-384868196694.europe-west9.run.app/v1/games"
+
+gameId: null
 
 desCodeurs:
   prefix: "§d§lDesCodeurs §8» §f" #player's msg
   broadcast-prefix: "[§d§lDesCodeurs§r] " #global's & console's msg
+  chest:
+    range:
+      x: 50000
+      y: 50000
 
-  packUrl: ""
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>           HARDCORE-MODE          >>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+hardcore-mode:
+  enable: false
+  team:
+    enable: false
+    teams:
+      1:
+        name: ""
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+#>>           NO-MATERIALS           >>
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 no-materials:
   - AIR

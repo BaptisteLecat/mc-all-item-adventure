@@ -2,8 +2,15 @@ name: desCodeurs
 version: '1.0-SNAPSHOT'
 main: fr.dreamin.desCodeurs.Main
 api-version: '1.21'
+author: "Scraven"
 commands:
   test:
     description: "Faire des tests"
   items:
     description: "Afficher les items"
+  additem:
+    description: "Ajouter un item"
+  removeitem:
+    description: "Supprimer un item"
+  reloadgame:
+    description: "Recharger la config du jeu"

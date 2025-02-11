@@ -10,7 +10,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +75,15 @@ public class PScoreBoard {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     LocalDateTime now = LocalDateTime.now();
     return now.format(formatter);
+  }
+
+  public static String formatDateTime(LocalDateTime dateTime) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    return dateTime.format(formatter);
+  }
+
+  public static LocalDateTime convertTimestampToLocalDateTime(long timestampInSeconds) {
+    return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestampInSeconds), ZoneId.systemDefault());
   }
 
   private List<String> getFooter() {

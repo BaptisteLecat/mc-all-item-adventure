@@ -1,8 +1,6 @@
 package fr.dreamin.desCodeurs.component.cmd;
 
-import fr.dreamin.desCodeurs.Main;
-import fr.dreamin.desCodeurs.component.gui.TestGui;
-import org.bukkit.Bukkit;
+import fr.dreamin.desCodeurs.manager.ChestManager;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class TestCmd implements CommandExecutor, TabExecutor {
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
     Player player  = (Player) sender;
 
-    new TestGui().open(player);
+    player.openInventory(ChestManager.getInventory());
 
     return false;
   }
