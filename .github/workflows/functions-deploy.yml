@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    paths:
+        - "infrastructure/cloud_functions/functions/**"
 
 jobs:
   deploy-functions:

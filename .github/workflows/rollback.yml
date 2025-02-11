@@ -31,7 +31,7 @@ jobs:
           echo "🔍 Checking if image tag $IMAGE_TAG exists in Artifact Registry..."
 
           # Récupère tous les tags d'images
-          AVAILABLE_TAGS=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure \
+          AVAILABLE_TAGS=$(gcloud artifacts docker images list ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure \
             --include-tags --format="value(tags)")
 
           # Vérifie si l'image demandée est dans la liste
@@ -66,7 +66,7 @@ jobs:
           echo "🔍 Checking if image tag $IMAGE_TAG exists in Artifact Registry..."
 
           # Récupère tous les tags d'images
-          AVAILABLE_TAGS=$(gcloud artifacts docker images list europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure \
+          AVAILABLE_TAGS=$(gcloud artifacts docker images list ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure \
             --include-tags --format="value(tags)")
 
           # Vérifie si l'image demandée est dans la liste
@@ -82,7 +82,7 @@ jobs:
           IMAGE_TAG="${{ github.event.inputs.version }}"
           gcloud compute instances update-container mc-server \
             --zone=${{ vars.GCP_ZONE }} \
-            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+            --container-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
       - name: Confirm Rollback
         run: |
@@ -91,7 +91,7 @@ jobs:
           DEPLOYED_IMAGE=$(gcloud compute instances describe mc-server --zone=${{ vars.GCP_ZONE }} \
             --format="json" | jq -r '.metadata.items[] | select(.key=="gce-container-declaration") | .value' | grep "image:" | awk '{print $2}')
           
-          EXPECTED_IMAGE="europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
+          EXPECTED_IMAGE="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG"
 
           if [ "$DEPLOYED_IMAGE" == "$EXPECTED_IMAGE" ]; then
             echo "✅ Rollback successful! Server is now running version $IMAGE_TAG."
@@ -142,7 +142,7 @@ jobs:
 
           echo "### 📦 Rolled Back Image" >> $GITHUB_STEP_SUMMARY
           echo "- **Version:** \`${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docker Image:** \`europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docker Image:** \`${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### 💡 Workflow Information" >> $GITHUB_STEP_SUMMARY

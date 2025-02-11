@@ -79,7 +79,7 @@ jobs:
         uses: "google-github-actions/setup-gcloud@v1"
 
       - name: Configure Docker
-        run: gcloud auth configure-docker europe-west1-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Determine Image Tag
         id: determine-image-tag
@@ -91,14 +91,14 @@ jobs:
       - name: Build Docker image with dynamic tag
         run: |
           docker build --build-arg PLUGINS_DIR=plugin_jars_flat \
-            -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG \
-            -t europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest \
+            -t ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG \
+            -t ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest \
             -f docker/Dockerfile .
 
       - name: Push Docker images
         run: |
-          docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
-          docker push europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest
+          docker push ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+          docker push ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:latest
           echo "✅ Docker images pushed successfully!"
 
   deploy-to-vm:
@@ -127,7 +127,7 @@ jobs:
         run: |
           gcloud compute instances update-container mc-server \
             --zone=${{ vars.GCP_ZONE }} \
-            --container-image=europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
+            --container-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:$IMAGE_TAG
 
       - name: Fetch deployed container image
         run: |
@@ -181,7 +181,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### 📦 Docker Image" >> $GITHUB_STEP_SUMMARY
-          echo "- **Deployed Image:** \`europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:${IMAGE_TAG}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed Image:** \`${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/mc-all-item-adventure/mc-all-item-adventure:${IMAGE_TAG}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### 💡 Build Information" >> $GITHUB_STEP_SUMMARY
