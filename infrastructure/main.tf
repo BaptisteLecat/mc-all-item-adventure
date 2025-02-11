@@ -243,7 +243,8 @@ resource "google_project_service" "firestore" {
 
 # Active Firebase sur le projet existant
 resource "google_firebase_project" "default" {
-  project = var.project
+  provider = "google-beta"
+  project  = var.project
 
   depends_on = [
     google_project_service.firebase_management,
