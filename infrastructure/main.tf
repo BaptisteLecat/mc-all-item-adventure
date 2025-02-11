@@ -58,6 +58,14 @@ spec:
       value: |
         38efa6ca-1964-4c6d-8861-a3426a81f1a0
         8cb12628-0314-4854-b6eb-6ca8834a3fef
+    - name: MEMORY
+      value: '4G'
+    - name: INIT_MEMORY
+      value: '2G'
+    - name: MAX_MEMORY
+      value: '4G'
+    - name: JVM_OPTS
+      value: "-Xmx8G"
     - name: ALLOW_NETHER
       value: 'TRUE'
     - name: ANNOUNCE_PLAYER_ACHIEVEMENTS
