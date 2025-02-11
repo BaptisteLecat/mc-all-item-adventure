@@ -171,8 +171,9 @@ resource "google_service_account_key" "ci_service_account_key" {
   public_key_type    = "TYPE_X509_PEM_FILE"
 }
 
-resource "github_actions_secret" "ci_service_account_json" {
-  repository      = var.github_repository # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
+resource "github_actions_environment_secret" "ci_service_account_json" {
+  repository      = var.github_repository   # ex: "mc-all-item-adventure"
+  environment     = "prod"                  # l'environnement ciblé
   secret_name     = "SERVICE_ACCOUNT_KEY"
   plaintext_value = base64decode(google_service_account_key.ci_service_account_key.private_key)
 }
@@ -212,8 +213,9 @@ resource "google_service_account_key" "cloud_run_plugin_firebase_api_service_acc
   public_key_type    = "TYPE_X509_PEM_FILE"
 }
 
-resource "github_actions_secret" "cloud_run_plugin_firebase_api_service_account_json" {
-  repository      = var.github_repository # Le nom du dépôt GitHub, par ex. "mc-all-item-adventure"
+resource "github_actions_environment_secret" "cloud_run_plugin_firebase_api_service_account_json" {
+  repository      = var.github_repository   # ex: "mc-all-item-adventure"
+  environment     = "prod"                  # l'environnement ciblé
   secret_name     = "CLOUD_RUN_EXECUTOR_SERVICE_ACCOUNT"
   plaintext_value = base64decode(google_service_account_key.cloud_run_plugin_firebase_api_service_account_key.private_key)
 }
