@@ -190,9 +190,9 @@ resource "google_service_account" "cloud_run_plugin_firebase_api_service_account
   description  = "Service account used by the Cloud Run Plugin Firebase API"
 }
 
-resource "google_project_iam_member" "artifact_registry_service_agent" {
+resource "google_project_iam_member" "plugin_firebase_api_artifact_registry_writer" {
   project = var.project
-  role    = "roles/artifactregistry.serviceAgent"
+  role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.cloud_run_plugin_firebase_api_service_account.email}"
 }
 
