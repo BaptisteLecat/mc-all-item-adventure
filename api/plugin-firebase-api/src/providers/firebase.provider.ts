@@ -11,7 +11,11 @@ export class FirebaseProvider {
   private initialize() {
 
     if (process.env.NODE_ENV == 'production') {
-      admin.initializeApp();
+      admin.initializeApp(
+          {
+            projectId: "mc-all-item-adventure",
+          }
+      );
     } else {
       // Set the Firebase Auth emulator host : https://stackoverflow.com/a/77929815/19101705
       process.env['FIREBASE_AUTH_EMULATOR_HOST'] = '127.0.0.1:9099';
@@ -20,7 +24,7 @@ export class FirebaseProvider {
       // Initialize Firebase Admin SDK
       admin.initializeApp(
         {
-          projectId: "weatherapp-journey",
+          projectId: "mc-all-item-adventure",
         }
       );
     }
