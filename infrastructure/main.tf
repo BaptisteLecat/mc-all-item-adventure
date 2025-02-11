@@ -254,11 +254,11 @@ resource "google_firebase_project" "default" {
 
 #Créer une base de données Firestore
 resource "google_firestore_database" "default" {
-  provider = "google-beta"
-  project  = var.project
+  provider    = "google-beta"
+  project     = var.project
   location_id = var.region
-  name = var.project
-  type = "FIRESTORE_NATIVE"
+  name        = var.project
+  type        = "FIRESTORE_NATIVE"
   depends_on = [
     google_firebase_project.default,
   ]
