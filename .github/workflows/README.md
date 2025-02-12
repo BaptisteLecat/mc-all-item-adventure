@@ -8,8 +8,6 @@
 - Deploy Cloud Functions (functions-deploy.yml)
 - Terraform CI/CD (terraform.yml)
 
-Voici une proposition de documentation concise pour le pipeline **Build & Deploy Minecraft Server with Plugins (build-plugins.yml)** :
-
 ---
 
 ### Build & Deploy Minecraft Server with Plugins (build-plugins.yml)
@@ -50,9 +48,6 @@ Le pipeline s'appuie sur plusieurs secrets et variables pour l'authentification 
 | `GCP_ZONE`            | Variables du dépôt    | String       | `europe-west1-b`                            |
 
 *Note : Les noms et valeurs réelles peuvent varier selon la configuration de votre projet.*
-
----
-Voici une proposition de documentation concise pour le pipeline **Rollback Minecraft Server (rollback.yml)** :
 
 ---
 
@@ -105,9 +100,6 @@ Le pipeline s'appuie sur plusieurs éléments pour la configuration et l'authent
 *Note : Veillez à adapter ces valeurs en fonction de la configuration réelle de votre projet.*
 
 ---
-Voici une proposition de documentation concise pour le pipeline **Deploy Firebase API (plugin-firebase-api-deploy.yml)** :
-
----
 
 ### Deploy Firebase API (plugin-firebase-api-deploy.yml)
 
@@ -146,9 +138,6 @@ Ce pipeline a pour objectif de déployer l'API Firebase associée aux plugins en
 | `IMAGE_TAG` (output)                       | Généré par le pipeline    | String       | `0.0.123` (basé sur le numéro d'exécution GitHub, ex: `0.0.10`)           |
 
 *Note : Adaptez ces exemples de valeurs selon la configuration réelle de votre projet.*
-
----
-Voici une proposition de documentation concise pour le pipeline **Deploy Cloud Functions (functions-deploy.yml)** :
 
 ---
 
@@ -194,9 +183,6 @@ Le pipeline utilise plusieurs secrets et variables pour assurer la connexion à 
 | `VM_INSTANCE_NAME`               | Variables du dépôt     | String       | `my-vm-instance`                                           |
 
 *Note : Les valeurs indiquées sont des exemples et doivent être adaptées à votre environnement de déploiement.*
-
----
-Voici une proposition de documentation concise pour le pipeline **Terraform CI/CD (terraform.yml)** :
 
 ---
 
