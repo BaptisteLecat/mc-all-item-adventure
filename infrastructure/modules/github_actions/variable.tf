@@ -14,6 +14,6 @@ variable "github_repository" {
 }
 
 variable "github_env" {
-    description = "The environment to use for the GitHub provider."
-    type        = string
+  description = "The environment to use for the GitHub provider."
+  type        = string
 }
