@@ -149,6 +149,12 @@ jobs:
                 });
               } else{
                 console.log("No changes detected.");
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: "No changes detected.",
+                });
               }
             } else {
                 if (githubActionsBotComment) {
