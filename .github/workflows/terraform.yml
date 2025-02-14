@@ -1,4 +1,6 @@
 name: Terraform CI/CD
+permissions:
+  issues: write
 
 on:
   push:
