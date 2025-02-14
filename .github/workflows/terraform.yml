@@ -94,7 +94,7 @@ jobs:
             const run_link = `<a href="${run_url}">Actions</a>`;
             const fs = require('fs');
             // Lecture du fichier généré par "Terraform Show"
-            let raw_plan = fs.readFileSync('tfplan.txt', 'utf8');
+            let raw_plan = fs.readFileSync('infrastructure/tfplan.txt', 'utf8');
             
             // Suppression des séquences ANSI pour une sortie propre
             const ansiRegex = /\x1B\[[0-9;]*[mK]/g;
