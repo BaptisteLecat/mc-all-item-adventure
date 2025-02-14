@@ -94,7 +94,6 @@ jobs:
               body: "```terraform\n" + plan + "\n```"
             });
 
-
       # 9. Appliquer automatiquement sur la branche main
       - name: Terraform Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
