@@ -84,7 +84,7 @@ jobs:
       # 8.2. Publier le plan en commentaire sur la PR
       - name: Comment Terraform Plan on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
