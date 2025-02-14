@@ -20,12 +20,6 @@ jobs:
     env:
       TF_VAR_project: "${{ secrets.GCP_PROJECT_ID }}"
       TF_VAR_terraform_bucket_name: ${{ vars.TF_GCP_BUCKET_NAME }}
-      TF_VAR_region: "${{ vars.GCP_REGION }}"
-      TF_VAR_zone: "${{ vars.GCP_ZONE }}"
-      TF_VAR_artifact_registry_repository: ${{ vars.TF_GCP_ARTIFACT_REGISTRY_REPOSITORY }}
-      TF_VAR_machine_type: ${{ vars.TF_GCP_MACHINE_TYPE }}
-      TF_VAR_disk_size: ${{ vars.TF_GCP_DISK_SIZE }}
-      TF_VAR_service_account: ${{ vars.TF_GCP_GH_SERVICE_ACCOUNT_NAME }}
       TF_VAR_github_token: ${{ secrets.TF_GITHUB_TOKEN }}
       TF_VAR_github_repository: ${{ github.event.repository.name }}
       TF_VAR_github_owner: ${{ github.repository_owner }}

@@ -8,6 +8,11 @@ resource "google_service_account" "ci_service_account" {
   description  = "Service account used by Github Actions to deploy the application"
 }
 
+resource "google_service_account_key" "ci_service_account_key" {
+  service_account_id = google_service_account.ci_service_account.name
+  public_key_type    = "TYPE_X509_PEM_FILE"
+}
+
 # Grant roles to the service account
 
 resource "google_project_iam_member" "ci_artifact_registry_writer" {

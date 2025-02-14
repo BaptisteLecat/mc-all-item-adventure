@@ -1,7 +1,7 @@
 variable "minecraft_server_artifact_registry_repository" {
   description = "The name of the Artifact Registry repository to create."
   type        = string
-  default     = "minecraft-server"
+  default     = "mc-all-item-adventure"
 }
 
 variable "plugin_firebase_api_artifact_registry_repository" {
