@@ -1,6 +1,5 @@
 name: Terraform CI/CD
-permissions:
-  issues: write
+permissions: write-all
 
 on:
   push:
@@ -89,7 +88,7 @@ jobs:
           script: |
             const fs = require('fs');
             const plan = fs.readFileSync('infrastructure/tfplan.txt', 'utf8');
-            octokit.rest.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
