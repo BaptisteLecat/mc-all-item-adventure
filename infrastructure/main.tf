@@ -36,7 +36,7 @@ module "github_actions" {
   cloud_run_plugin_firebase_api_service_account_email = module.iam.plugin_firebase_api_service_account_email
 }
 
-# Enable the Cloud Billing API
+# Enable the Cloud Billing API for the project
 resource "google_project_service" "cloud_billing" {
   project            = var.project
   service            = "cloudbilling.googleapis.com"
