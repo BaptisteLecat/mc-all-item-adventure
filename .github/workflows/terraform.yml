@@ -79,6 +79,27 @@ jobs:
         run: terraform plan -no-color -out=tfplan
         working-directory: ./infrastructure
 
+        # 8.1. Générer le plan en format texte (uniquement sur PR)
+      - name: Terraform Show
+        if: github.event_name == 'pull_request'
+        run: terraform show -no-color tfplan > tfplan.txt
+        working-directory: ./infrastructure
+
+      # 8.2. Publier le plan en commentaire sur la PR
+      - name: Comment Terraform Plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('infrastructure/tfplan.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "```terraform\n" + plan + "\n```"
+            });
+            
       # 9. Appliquer automatiquement sur la branche main
       - name: Terraform Apply
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
