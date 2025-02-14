@@ -81,19 +81,87 @@ jobs:
         working-directory: ./infrastructure
 
       # 8.2. Publier le plan en commentaire sur la PR
-      - name: Comment Terraform Plan on PR
+      - name: Create/Update Comment
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            if (!context || !context.issue || !context.issue.number) {
+              return;
+            }
+            const run_url = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            const run_link = `<a href="${run_url}">Actions</a>`;
             const fs = require('fs');
-            const plan = fs.readFileSync('infrastructure/tfplan.txt', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "```terraform\n" + plan + "\n```"
-            });
+            // Lecture du fichier généré par "Terraform Show"
+            let raw_plan = fs.readFileSync('tfplan.txt', 'utf8');
+            
+            // Suppression des séquences ANSI pour une sortie propre
+            const ansiRegex = /\x1B\[[0-9;]*[mK]/g;
+            const cleanPlan = raw_plan.replace(ansiRegex, '');
+            
+            // Tronquer si le plan est trop long
+            const planContent = cleanPlan.length > 65000 
+              ? " ..." + cleanPlan.substring(cleanPlan.length - 65000) 
+              : cleanPlan;
+            
+            const truncated_message = cleanPlan.length > 65000 
+              ? "Output is too long and was truncated. You can read the full Plan in " + run_link + "<br /><br />" 
+              : "";
+            
+            const commentTitle = `### Terraform Status`;
+            const commentContent = `
+${commentTitle}
+#### Terraform Format and Style 🖌 <code>${{ steps.fmt.outputs.fmt-outcome }}</code>
+#### Terraform Validate 📖 <code>${{ steps.validate.outputs.validate-outcome }}</code>
+#### Terraform Plan 📖 <code>${{ steps.plan.outputs.plan-outcome }}</code>
+<details>
+<summary>Show Plan</summary>
+
+<pre><code class="language-terraform">
+${planContent}
+</code></pre>
+
+</details>
+${truncated_message}
+
+Pusher: @${{ github.actor }}
+Action: <code>${{ github.event_name }}</code>
+`;
+const comments = await github.rest.issues.listComments({
+  issue_number: context.issue.number,
+  owner: context.repo.owner,
+  repo: context.repo.repo,
+});
+const githubActionsBotComment = comments.data.find(comment =>
+  comment.user.login === 'github-actions[bot]' &&
+  comment.body.includes(commentTitle)
+);
+if (cleanPlan.includes("No changes.")) {
+  if (githubActionsBotComment) {
+    await github.rest.issues.deleteComment({
+      comment_id: githubActionsBotComment.id,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+    });
+  }
+} else {
+  if (githubActionsBotComment) {
+    await github.rest.issues.updateComment({
+      comment_id: githubActionsBotComment.id,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      body: commentContent,
+    });
+  } else {
+    await github.rest.issues.createComment({
+      issue_number: context.issue.number,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      body: commentContent,
+    });
+  }
+}
 
       # 9. Appliquer automatiquement sur la branche main
       - name: Terraform Apply
