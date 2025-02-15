@@ -1,0 +1,44 @@
+name: Tag PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tag PR if Terraform changes detected
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            // Récupère la liste des fichiers modifiés dans la PR
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            
+            let addLabel = false;
+            for (const file of files) {
+              // Si le fichier est dans le dossier infrastructure/ ou possède l'extension .tf
+              if (file.filename.startsWith('infrastructure/') || file.filename.endsWith('.tf')) {
+                addLabel = true;
+                break;
+              }
+            }
+            
+            if (addLabel) {
+              console.log("Des modifications Terraform ont été détectées, ajout du label 'infrastructure'.");
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ["infrastructure"]
+              });
+            } else {
+              console.log("Aucune modification Terraform détectée.");
+            }
+s
