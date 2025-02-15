@@ -1,4 +1,5 @@
 name: Tag PR
+permissions: write-all
 
 on:
   pull_request:
