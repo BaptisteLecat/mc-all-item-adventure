@@ -34,7 +34,7 @@ jobs:
           cd plugins
           for d in */ ; do
             cd "$d"
-            gradle shadowJar
+            gradle shadowJar -PtestEnv=false
             cd ..
           done
           echo "✅ All plugins built successfully!"
